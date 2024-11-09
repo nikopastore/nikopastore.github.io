@@ -58,7 +58,7 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
 function createVisualization(data) {
     // Set the dimensions and margins for the SVG
     const margin = { top: 50, right: 50, bottom: 100, left: 100 };
-    const width = 800 - margin.left - margin.right;
+    const width = 700 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     // Create an SVG container
@@ -96,7 +96,7 @@ function createVisualization(data) {
         .x(d => xScale(d.year))
         .y(d => yScale(d.gdp_growth));
 
-    // Draw a line for each country and apply the clipping path
+    // Draw a line for each country
     const linesGroup = svg.append("g");
 
     const lines = linesGroup.selectAll(".line")
@@ -160,10 +160,34 @@ function createVisualization(data) {
             tooltip.style("top", `${event.pageY - 20}px`)
                 .style("left", `${event.pageX + 20}px`);
         })
-        .on("mouseout", function () {
+        .on("mouseout", function (event, d) {
             d3.select(this)
                 .style("stroke-width", 1.5)
                 .style("stroke", d3.schemeCategory10[data.indexOf(d) % 10]); // Revert to the original color
             tooltip.style("visibility", "hidden");
         });
+
+    // Set up filters for interaction
+    d3.select("#yearMin").on("input", updateChart);
+    d3.select("#yearMax").on("input", updateChart);
+    d3.select("#gdpMin").on("input", updateChart);
+    d3.select("#gdpMax").on("input", updateChart);
+
+    function updateChart() {
+        const yearMin = +d3.select("#yearMin").property("value");
+        const yearMax = +d3.select("#yearMax").property("value");
+        const gdpMin = +d3.select("#gdpMin").property("value");
+        const gdpMax = +d3.select("#gdpMax").property("value");
+
+        // Update scales
+        xScale.domain([yearMin, yearMax]);
+        yScale.domain([gdpMin, gdpMax]);
+
+        // Update axes
+        xAxisGroup.call(xAxis);
+        yAxisGroup.call(yAxis);
+
+        // Update lines
+        lines.attr("d", d => line(d));
+    }
 }

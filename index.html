@@ -10,15 +10,25 @@
 <body>
     <div class="container">
         <h1>GDP Annual Growth: 2000-2020 (Top 10 Countries)</h1>
-        <div id="content-wrapper" style="display: flex; gap: 20px;">
-            <div id="visualization" style="flex: 3; padding: 20px; border: 2px solid #0073e6; border-radius: 8px; background-color: #ffffff;"></div>
-            <div id="legend-container" class="legend-container" style="flex: 1; padding: 10px; border: 2px solid #0073e6; border-radius: 8px; background-color: #ffffff; max-width: 200px;"></div>
+        <div id="controls">
+            <label for="yearMin">Year Min:</label>
+            <input type="range" id="yearMin" min="2000" max="2020" value="2000">
+            <label for="yearMax">Year Max:</label>
+            <input type="range" id="yearMax" min="2000" max="2020" value="2020">
+            <label for="gdpMin">GDP Min:</label>
+            <input type="range" id="gdpMin" min="-10" max="10" value="-10">
+            <label for="gdpMax">GDP Max:</label>
+            <input type="range" id="gdpMax" min="-10" max="10" value="10">
+        </div>
+        <div id="content-wrapper">
+            <div id="visualization"></div>
+            <div id="legend-container" class="legend-container"></div>
         </div>
         <div id="writeup">
             <h2>Write-Up</h2>
             <p>This interactive visualization allows you to explore the GDP annual growth of the top 10 countries from 2000 to 2020. Use the available interactions to better understand growth trends and compare different countries across the time span.</p>
         </div>
-        <div id="tooltip" class="tooltip" style="position: absolute; background-color: white; border: 1px solid #ccc; padding: 10px; border-radius: 4px; visibility: hidden;"></div>
+        <div id="tooltip" class="tooltip"></div>
     </div>
     <script src="js/main.js"></script>
 </body>
