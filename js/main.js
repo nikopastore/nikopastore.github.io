@@ -1,23 +1,29 @@
 d3.csv("data/GDP_annual_growth_NEW.csv").then(function(data) {
+    let reshapedData = [];
+
+    let years = d3.range(2000, 2021);
+
     let top10Countries = [
         "United States", "China", "Japan", "Germany", 
         "India", "United Kingdom", "France", "Italy", 
         "Canada", "South Korea"
     ];
 
-    let filteredData = data.filter(d => 
-        top10Countries.includes(d.country) &&
-        +d.year >= 2000 && +d.year <= 2020
-    );
-
-    filteredData.forEach(d => {
-        d.year = +d.year;
-        d.gdp_growth = +d.gdp_growth;
+    data.forEach(d => {
+        if (top10Countries.includes(d["Country Name"])) {
+            years.forEach(year => {
+                reshapedData.push({
+                    country: d["Country Name"],
+                    year: +year,
+                    gdp_growth: +d[year]
+                });
+            });
+        }
     });
 
-    console.log(filteredData);
+    console.log(reshapedData);
 
-    createVisualization(filteredData);
+    createVisualization(reshapedData);
 }).catch(function(error){
     console.error("Error loading the CSV file: ", error);
 });
