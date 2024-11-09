@@ -20,15 +20,15 @@
             <label for="gdpMax">GDP Max:</label>
             <input type="range" id="gdpMax" min="-10" max="10" value="10">
         </div>
-        <div id="content-wrapper">
-            <div id="visualization"></div>
-            <div id="legend-container" class="legend-container"></div>
+        <div id="content-wrapper" style="display: flex; gap: 20px;">
+            <div id="visualization" style="flex: 3;"></div>
+            <div id="legend-container" class="legend-container" style="flex: 1;"></div>
         </div>
         <div id="writeup">
             <h2>Write-Up</h2>
             <p>This interactive visualization allows you to explore the GDP annual growth of the top 10 countries from 2000 to 2020. Use the available interactions to better understand growth trends and compare different countries across the time span.</p>
         </div>
-        <div id="tooltip" class="tooltip"></div>
+        <div id="tooltip" class="tooltip" style="position: absolute; background-color: white; border: 1px solid #ccc; padding: 10px; border-radius: 4px; visibility: hidden; z-index: 10;"></div>
     </div>
     <script src="js/main.js"></script>
 </body>

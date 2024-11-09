@@ -69,6 +69,13 @@ function createVisualization(data) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Create a clip path to prevent lines from extending beyond the chart area
+    svg.append("defs").append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height);
+
     // Set up scales for the x and y axes
     let xScale = d3.scaleLinear()
         .domain([2000, 2020])
@@ -96,8 +103,9 @@ function createVisualization(data) {
         .x(d => xScale(d.year))
         .y(d => yScale(d.gdp_growth));
 
-    // Draw a line for each country
-    const linesGroup = svg.append("g");
+    // Draw a line for each country and apply the clipping path
+    const linesGroup = svg.append("g")
+        .attr("clip-path", "url(#clip)");
 
     const lines = linesGroup.selectAll(".line")
         .data(data)
@@ -114,80 +122,4 @@ function createVisualization(data) {
     const legendContainer = d3.select("#legend-container");
 
     data.forEach((countryData, i) => {
-        const countryName = countryData[0].country;
-
-        // Create a container for each checkbox and label
-        const legendItem = legendContainer.append("div")
-            .attr("class", "legend-item");
-
-        // Add the checkbox
-        legendItem.append("input")
-            .attr("type", "checkbox")
-            .attr("id", countryName.replace(/\s+/g, '_'))
-            .attr("checked", true)  // Initially, all lines are visible
-            .on("change", function() {
-                const isChecked = d3.select(this).property("checked");
-                const lineId = `#${countryName.replace(/\s+/g, '_')}`;
-                if (isChecked) {
-                    d3.select(lineId).style("display", null);
-                } else {
-                    d3.select(lineId).style("display", "none");
-                }
-            });
-
-        // Add the label next to the checkbox
-        legendItem.append("label")
-            .attr("for", countryName.replace(/\s+/g, '_'))
-            .text(countryName)
-            .style("margin-left", "8px")
-            .style("color", d3.schemeCategory10[i % 10]); // Match the color of the line
-    });
-
-    // Tooltip to show information
-    const tooltip = d3.select("#tooltip");
-
-    lines.on("mouseover", function (event, d) {
-            d3.select(this)
-                .style("stroke-width", 3)
-                .style("stroke", "orange");
-
-            tooltip.style("visibility", "visible")
-                .style("top", `${event.pageY - 20}px`)
-                .style("left", `${event.pageX + 20}px`)
-                .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
-        })
-        .on("mousemove", function (event) {
-            tooltip.style("top", `${event.pageY - 20}px`)
-                .style("left", `${event.pageX + 20}px`);
-        })
-        .on("mouseout", function (event, d) {
-            d3.select(this)
-                .style("stroke-width", 1.5)
-                .style("stroke", d3.schemeCategory10[data.indexOf(d) % 10]); // Revert to the original color
-            tooltip.style("visibility", "hidden");
-        });
-
-    // Set up filters for interaction
-    d3.select("#yearMin").on("input", updateChart);
-    d3.select("#yearMax").on("input", updateChart);
-    d3.select("#gdpMin").on("input", updateChart);
-    d3.select("#gdpMax").on("input", updateChart);
-
-    function updateChart() {
-        const yearMin = +d3.select("#yearMin").property("value");
-        const yearMax = +d3.select("#yearMax").property("value");
-        const gdpMin = +d3.select("#gdpMin").property("value");
-        const gdpMax = +d3.select("#gdpMax").property("value");
-
-        // Update scales
-        xScale.domain([yearMin, yearMax]);
-        yScale.domain([gdpMin, gdpMax]);
-
-        // Update axes
-        xAxisGroup.call(xAxis);
-        yAxisGroup.call(yAxis);
-
-        // Update lines
-        lines.attr("d", d => line(d));
-    }
-}
+        const countryName =

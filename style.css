@@ -25,11 +25,18 @@ h1 {
     color: #0073e6;
 }
 
+#controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
 #content-wrapper {
     display: flex;
-    flex-direction: row; /* Arrange the visualization and legend horizontally */
-    gap: 10px;
-    align-items: flex-start; /* Align items to the top */
+    flex-direction: row;
+    align-items: flex-start;
 }
 
 #visualization {
@@ -56,20 +63,6 @@ h1 {
     margin-right: 5px;
 }
 
-#controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
-    justify-content: center;
-}
-
-#writeup {
-    text-align: center;
-    font-size: 1rem;
-    margin-top: 20px;
-}
-
 .tooltip {
     position: absolute;
     background-color: #ffffff;
@@ -82,4 +75,10 @@ h1 {
     color: #333;
     visibility: hidden;
     z-index: 10;
+}
+
+#writeup {
+    text-align: center;
+    font-size: 1rem;
+    margin-top: 20px;
 }
