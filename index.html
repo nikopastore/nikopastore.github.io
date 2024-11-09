@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="tooltip" class="tooltip"></div> <!-- Move tooltip to the top of the body -->
+    <div id="tooltip" class="tooltip"></div>
 
     <div class="container">
         <h1>GDP Annual Growth: 2000-2020 (Top 10 Countries)</h1>
@@ -23,9 +23,9 @@
             <input type="range" id="gdpMax" min="-10" max="10" value="10">
         </div>
 
-        <!-- Wrapper to keep the chart and checkboxes side-by-side -->
+        <!-- Content-wrapper flexbox to align chart and checkboxes side-by-side -->
         <div id="content-wrapper" class="content-wrapper">
-            <div id="visualization"></div>
+            <div id="visualization" class="visualization"></div>
             <div id="legend-container" class="legend-container"></div>
         </div>
 

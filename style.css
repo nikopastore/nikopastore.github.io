@@ -1,13 +1,5 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    color: #333;
 }
 
 .container {
@@ -16,18 +8,20 @@ body {
 
 .content-wrapper {
     display: flex;
-    flex-direction: row; /* Place items side-by-side */
+    flex-direction: row; /* Arrange children in a row */
     align-items: flex-start; /* Align items at the top */
+    gap: 20px; /* Add space between chart and legend */
 }
 
 #visualization {
-    margin-right: 20px; /* Add some space between chart and checkboxes */
+    flex: 2; /* Make the visualization take more space */
 }
 
 .legend-container {
+    flex: 1; /* Legend container takes up less space */
     display: flex;
     flex-direction: column;
-    max-width: 200px; /* Ensure the legend does not grow too wide */
+    max-width: 200px; /* Prevent legend from getting too wide */
 }
 
 .legend-container .checkbox-item {
@@ -35,7 +29,7 @@ body {
 }
 
 .tooltip {
-    position: absolute; /* Ensure tooltip is positioned relative to the viewport */
+    position: absolute;
     background-color: #ffffff;
     border: 1px solid #cccccc;
     padding: 10px;
@@ -46,13 +40,4 @@ body {
     color: #333;
     visibility: hidden;
     z-index: 10;
-}
-
-
-
-
-#writeup {
-    text-align: center;
-    font-size: 1rem;
-    margin-top: 20px;
 }
