@@ -130,13 +130,13 @@ function createVisualization(data) {
                 .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
         })
         .on("mousemove", function (event) {
-            tooltip.style("top", `${event.clientY + window.scrollY - 20}px`)
-                .style("left", `${event.clientX + 20}px`);
+            tooltip.style("top", `${event.clientY + window.scrollY + 10}px`)
+                .style("left", `${event.clientX + 10}px`);
         })
-        .on("mouseout", function () {
+        .on("mouseout", function (event, d) {
             d3.select(this)
                 .style("stroke-width", 1.5)
-                .style("stroke", d3.schemeCategory10[data.indexOf(d) % 10]); // Revert to original color
+                .style("stroke", (d, i) => d3.schemeCategory10[i % 10]); // Revert to original color
             tooltip.style("visibility", "hidden");
         });
 
