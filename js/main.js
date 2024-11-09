@@ -132,6 +132,9 @@ function createVisualization(data) {
                 .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
         })
         .on("mousemove", function (event) {
+            // Debugging for tooltip positioning
+            console.log("Mousemove Event - pageX:", event.pageX, "pageY:", event.pageY);
+
             tooltip.style("top", `${event.pageY + 10}px`)
                 .style("left", `${event.pageX + 10}px`);
         })
