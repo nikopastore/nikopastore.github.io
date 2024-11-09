@@ -45,6 +45,9 @@ function createVisualization(data) {
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+        .call(d3.zoom().on("zoom", function (event) {
+            svg.attr("transform", event.transform);
+        }))
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -59,11 +62,11 @@ function createVisualization(data) {
     const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
     const yAxis = d3.axisLeft(yScale);
 
-    svg.append("g")
+    const xAxisGroup = svg.append("g")
         .attr("transform", `translate(0, ${height})`)
         .call(xAxis);
 
-    svg.append("g")
+    const yAxisGroup = svg.append("g")
         .call(yAxis);
 
     const line = d3.line()
@@ -74,7 +77,7 @@ function createVisualization(data) {
 
     const tooltip = d3.select("#tooltip");
 
-    svg.selectAll(".line")
+    const lines = svg.selectAll(".line")
         .data(nestedData)
         .enter()
         .append("path")
