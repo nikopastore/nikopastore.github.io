@@ -114,6 +114,49 @@ function createVisualization(data) {
         .each(function (d, i) {
             // Store the original color in the data for later use
             d.originalColor = d3.schemeCategory10[i % 10];
+        })
+        .on("mouseover", function (event, d) {
+            d3.select(this)
+                .style("stroke-width", 3)
+                .style("stroke", "orange");
+
+            // Get the current x-axis minimum value
+            const xMin = +d3.select("#xMin").property("value");
+
+            // Get the nearest data point to the mouse
+            const mouseYear = Math.round(xScale.invert(event.offsetX - margin.left));
+            const dataPoint = d.find(point => point.year === mouseYear);
+
+            // Find the starting data point for the current visible range
+            const startPoint = d.find(point => point.year === xMin);
+
+            if (dataPoint && startPoint) {
+                // Calculate the total percentage change from the starting year
+                const totalChange = dataPoint.gdp_growth - startPoint.gdp_growth;
+
+                tooltip.style("visibility", "visible")
+                    .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>Total GDP Growth from ${xMin}:</strong> ${totalChange.toFixed(2)}%`);
+            }
+        })
+        .on("mousemove", function (event) {
+            tooltip.style("top", (event.pageY - 10) + "px")
+                .style("left", (event.pageX + 10) + "px");
+        })
+        .on("mouseout", function (event, d) {
+            if (!d.isPinned) {
+                d3.select(this)
+                    .style("stroke-width", 1.5)
+                    .style("stroke", d.originalColor);
+            }
+            tooltip.style("visibility", "hidden");
+        })
+        .on("click", function (event, d) {
+            d.isPinned = !d.isPinned;
+            if (d.isPinned) {
+                d3.select(this).style("stroke-width", 3).style("stroke", "blue");
+            } else {
+                d3.select(this).style("stroke-width", 1.5).style("stroke", d.originalColor);
+            }
         });
 
     // Add a legend for the lines, placing it outside of the clipping path
@@ -182,4 +225,7 @@ function createVisualization(data) {
         lines.data(normalizedData)
             .attr("d", d => line(d));
     }
+
+    // Call updateChart initially to ensure lines are drawn on load
+    updateChart();
 }
