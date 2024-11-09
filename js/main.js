@@ -125,8 +125,10 @@ function createVisualization(data) {
             const mouseYear = Math.round(xScale.invert(event.offsetX - margin.left));
             const dataPoint = d[1].find(point => point.year === mouseYear);
 
-            tooltip.style("visibility", "visible")
-                .html(`<strong>Country:</strong> ${d[0]}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>GDP Growth:</strong> ${dataPoint.gdp_growth}%`);
+            if (dataPoint) {
+                tooltip.style("visibility", "visible")
+                    .html(`<strong>Country:</strong> ${d[0]}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>GDP Growth:</strong> ${dataPoint.gdp_growth}%`);
+            }
         })
         .on("mousemove", function (event) {
             tooltip.style("top", (event.pageY - 10) + "px")
@@ -173,4 +175,34 @@ function createVisualization(data) {
     // Update the chart when sliders are used
     d3.select("#xMin").on("input", updateChart);
     d3.select("#xMax").on("input", updateChart);
-    d3.select("#yMin").on("input",
+    d3.select("#yMin").on("input", updateChart);
+    d3.select("#yMax").on("input", updateChart);
+
+    // Add reset button functionality
+    d3.select("#resetButton").on("click", function() {
+        d3.select("#xMin").property("value", 2000);
+        d3.select("#xMax").property("value", 2020);
+        d3.select("#yMin").property("value", -10);
+        d3.select("#yMax").property("value", 15);
+        updateChart();
+    });
+
+    function updateChart() {
+        // Get slider values
+        const xMin = +d3.select("#xMin").property("value");
+        const xMax = +d3.select("#xMax").property("value");
+        const yMin = +d3.select("#yMin").property("value");
+        const yMax = +d3.select("#yMax").property("value");
+
+        // Update domains
+        xScale.domain([xMin, xMax]);
+        yScale.domain([yMin, yMax]);
+
+        // Update axes
+        xAxisGroup.call(xAxis);
+        yAxisGroup.call(yAxis);
+
+        // Update line paths
+        lines.attr("d", d => line(d[1]));
+    }
+}
