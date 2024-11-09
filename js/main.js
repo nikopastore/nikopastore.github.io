@@ -97,8 +97,7 @@ function createVisualization(data) {
         .y(d => yScale(d.gdp_growth));
 
     // Draw a line for each country and apply the clipping path
-    const linesGroup = svg.append("g")
-        .attr("clip-path", "url(#clip)");  // Apply the clip path
+    const linesGroup = svg.append("g");
 
     const lines = linesGroup.selectAll(".line")
         .data(data)
@@ -161,7 +160,7 @@ function createVisualization(data) {
             tooltip.style("top", `${event.pageY - 20}px`)
                 .style("left", `${event.pageX + 20}px`);
         })
-        .on("mouseout", function (event, d) {
+        .on("mouseout", function () {
             d3.select(this)
                 .style("stroke-width", 1.5)
                 .style("stroke", d3.schemeCategory10[data.indexOf(d) % 10]); // Revert to the original color
