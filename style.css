@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 1200px;  /* Increased max width to make room for the legend */
+    max-width: 1200px;
     width: 90%;
     padding: 20px;
     background-color: #ffffff;
@@ -26,38 +26,37 @@ h1 {
     color: #0073e6;
 }
 
-#visualization-container {
+#content-wrapper {
     display: flex;
-    flex-direction: row;  /* Arrange elements horizontally */
+    flex-direction: row; /* Arrange the visualization and legend horizontally */
+    gap: 20px;
+    align-items: flex-start; /* Align items to the top */
+}
+
+#visualization {
+    flex: 3; /* Visualization takes more space */
     padding: 20px;
     border: 2px solid #0073e6;
     border-radius: 8px;
     background-color: #ffffff;
-    margin: 20px 0;
-    justify-content: flex-start;  /* Align items to the start */
-    align-items: flex-start;  /* Align items vertically */
-}
-
-#visualization {
-    flex: 3;  /* Give more space to the visualization */
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .legend-container {
-    flex: 1;  /* Allocate space to the legend */
+    flex: 1; /* Legend takes up less space */
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    margin-left: 20px;
-    max-width: 200px;  /* Limit the width of the legend */
+    align-items: flex-start;
+    max-width: 200px;
+    padding: 10px;
+    border: 2px solid #0073e6;
+    border-radius: 8px;
+    background-color: #ffffff;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;  /* Spacing between legend items */
+    margin-bottom: 8px;
 }
 
 .legend-item input[type="checkbox"] {

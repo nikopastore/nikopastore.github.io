@@ -57,7 +57,7 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
 // Function to create the visualization
 function createVisualization(data) {
     // Set the dimensions and margins for the SVG
-    const margin = { top: 50, right: 250, bottom: 100, left: 100 }; // Increased right margin for legend space
+    const margin = { top: 50, right: 50, bottom: 100, left: 100 };
     const width = 800 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -98,7 +98,7 @@ function createVisualization(data) {
 
     // Draw a line for each country and apply the clipping path
     const linesGroup = svg.append("g")
-        .attr("clip-path", "url(#clip)")  // Apply the clip path
+        .attr("clip-path", "url(#clip)");  // Apply the clip path
 
     const lines = linesGroup.selectAll(".line")
         .data(data)
@@ -112,7 +112,7 @@ function createVisualization(data) {
         .attr("id", d => d[0].country.replace(/\s+/g, '_'));  // Assign a unique ID to each line
 
     // Create a legend with checkboxes for each country
-    const legendContainer = d3.select(".legend-container");
+    const legendContainer = d3.select("#legend-container");
 
     data.forEach((countryData, i) => {
         const countryName = countryData[0].country;
