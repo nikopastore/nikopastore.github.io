@@ -72,6 +72,8 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
     
         const nestedData = d3.group(data, d => d.country);
     
+        const tooltip = d3.select("#tooltip");
+    
         svg.selectAll(".line")
             .data(nestedData)
             .enter()
@@ -80,7 +82,26 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
             .attr("d", d => line(d[1]))
             .style("fill", "none")
             .style("stroke", (d, i) => d3.schemeCategory10[i % 10])
-            .style("stroke-width", 1.5);
+            .style("stroke-width", 1.5)
+            .on("mouseover", function (event, d) {
+                d3.select(this)
+                    .style("stroke-width", 3)
+                    .style("stroke", "orange");
+    
+                tooltip.style("visibility", "visible")
+                    .html(`<strong>Country:</strong> ${d[0]}`);
+            })
+            .on("mousemove", function (event) {
+                tooltip.style("top", (event.pageY - 10) + "px")
+                    .style("left", (event.pageX + 10) + "px");
+            })
+            .on("mouseout", function () {
+                d3.select(this)
+                    .style("stroke-width", 1.5)
+                    .style("stroke", (d, i) => d3.schemeCategory10[i % 10]);
+    
+                tooltip.style("visibility", "hidden");
+            });
     
         const legend = svg.selectAll(".legend")
             .data(nestedData.keys())
