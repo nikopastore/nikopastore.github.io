@@ -136,6 +136,27 @@ function createVisualization(data) {
             tooltip.style("visibility", "hidden");
         });
 
+    // Add a legend for the lines, placing it outside of the clipping path
+    const legend = svg.selectAll(".legend")
+        .data(nestedData.keys())
+        .enter()
+        .append("g")
+        .attr("class", "legend")
+        .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+    legend.append("rect")
+        .attr("x", width + 20)
+        .attr("width", 10)
+        .attr("height", 10)
+        .style("fill", (d, i) => d3.schemeCategory10[i % 10]);
+
+    legend.append("text")
+        .attr("x", width + 35)
+        .attr("y", 5)
+        .attr("dy", ".35em")
+        .style("text-anchor", "start")
+        .text(d => d);
+
     // Update the chart when sliders are used
     d3.select("#xMin").on("input", updateChart);
     d3.select("#xMax").on("input", updateChart);
