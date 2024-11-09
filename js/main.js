@@ -32,15 +32,7 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
                         });
                     }
                 });
-
-                // Normalize the data to start from 0 in the year 2000
-                if (countryData.length > 0) {
-                    const baseValue = countryData.find(point => point.year === 2000).gdp_growth;
-                    countryData.forEach(point => {
-                        point.gdp_growth = point.gdp_growth - baseValue;
-                    });
-                    reshapedData.push(...countryData);
-                }
+                reshapedData.push(countryData);
             }
         });
 
@@ -83,7 +75,7 @@ function createVisualization(data) {
         .range([0, width]);
 
     let yScale = d3.scaleLinear()
-        .domain([d3.min(data, d => d.gdp_growth), d3.max(data, d => d.gdp_growth)])
+        .domain([d3.min(data.flat(), d => d.gdp_growth), d3.max(data.flat(), d => d.gdp_growth)])
         .range([height, 0]);
 
     // Set up the x and y axes
@@ -104,26 +96,23 @@ function createVisualization(data) {
         .x(d => xScale(d.year))
         .y(d => yScale(d.gdp_growth));
 
-    // Group the data by country
-    const nestedData = d3.group(data, d => d.country);
-
     // Create the tooltip
     const tooltip = d3.select("#tooltip");
 
     // Draw a line for each country and apply the clipping path
-    const lines = svg.append("g")
-        .attr("clip-path", "url(#clip)")  // Apply the clip path
-        .selectAll(".line")
-        .data(nestedData)
+    let linesGroup = svg.append("g")
+        .attr("clip-path", "url(#clip)");  // Apply the clip path
+
+    let lines = linesGroup.selectAll(".line")
+        .data(data)
         .enter()
         .append("path")
         .attr("class", "line")
-        .attr("d", d => line(d[1]))
         .style("fill", "none")
         .style("stroke", (d, i) => d3.schemeCategory10[i % 10])
         .style("stroke-width", 1.5)
+        .attr("d", d => line(d))
         .each(function (d, i) {
-            // Store the original color in the data for later use
             d.originalColor = d3.schemeCategory10[i % 10];
         })
         .on("mouseover", function (event, d) {
@@ -131,48 +120,24 @@ function createVisualization(data) {
                 .style("stroke-width", 3)
                 .style("stroke", "orange");
 
-            // Get the current x-axis minimum value
-            const xMin = +d3.select("#xMin").property("value");
-
-            // Get the nearest data point to the mouse
-            const mouseYear = Math.round(xScale.invert(event.offsetX - margin.left));
-            const dataPoint = d[1].find(point => point.year === mouseYear);
-
-            // Find the starting data point for the current visible range
-            const startPoint = d[1].find(point => point.year === xMin);
-
-            if (dataPoint && startPoint) {
-                // Calculate the total percentage change from the starting year
-                const totalChange = dataPoint.gdp_growth - startPoint.gdp_growth;
-
-                tooltip.style("visibility", "visible")
-                    .html(`<strong>Country:</strong> ${d[0]}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>Total GDP Growth from ${xMin}:</strong> ${totalChange.toFixed(2)}%`);
-            }
+            tooltip.style("visibility", "visible")
+                .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>Total GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
         })
         .on("mousemove", function (event) {
             tooltip.style("top", (event.pageY - 10) + "px")
                 .style("left", (event.pageX + 10) + "px");
         })
         .on("mouseout", function (event, d) {
-            if (!d.isPinned) {
-                d3.select(this)
-                    .style("stroke-width", 1.5)
-                    .style("stroke", d.originalColor);
-            }
+            d3.select(this)
+                .style("stroke-width", 1.5)
+                .style("stroke", d.originalColor);
+
             tooltip.style("visibility", "hidden");
-        })
-        .on("click", function (event, d) {
-            d.isPinned = !d.isPinned;
-            if (d.isPinned) {
-                d3.select(this).style("stroke-width", 3).style("stroke", "blue");
-            } else {
-                d3.select(this).style("stroke-width", 1.5).style("stroke", d.originalColor);
-            }
         });
 
     // Add a legend for the lines, placing it outside of the clipping path
     const legend = svg.selectAll(".legend")
-        .data(nestedData.keys())
+        .data(data)
         .enter()
         .append("g")
         .attr("class", "legend")
@@ -180,48 +145,4 @@ function createVisualization(data) {
 
     legend.append("rect")
         .attr("x", width + 20)
-        .attr("width", 10)
-        .attr("height", 10)
-        .style("fill", (d, i) => d3.schemeCategory10[i % 10]);
-
-    legend.append("text")
-        .attr("x", width + 35)
-        .attr("y", 5)
-        .attr("dy", ".35em")
-        .style("text-anchor", "start")
-        .text(d => d);
-
-    // Update the chart when sliders are used
-    d3.select("#xMin").on("input", updateChart);
-    d3.select("#xMax").on("input", updateChart);
-    d3.select("#yMin").on("input", updateChart);
-    d3.select("#yMax").on("input", updateChart);
-
-    // Add reset button functionality
-    d3.select("#resetButton").on("click", function() {
-        d3.select("#xMin").property("value", 2000);
-        d3.select("#xMax").property("value", 2020);
-        d3.select("#yMin").property("value", d3.min(data, d => d.gdp_growth));
-        d3.select("#yMax").property("value", d3.max(data, d => d.gdp_growth));
-        updateChart();
-    });
-
-    function updateChart() {
-        // Get slider values
-        const xMin = +d3.select("#xMin").property("value");
-        const xMax = +d3.select("#xMax").property("value");
-        const yMin = +d3.select("#yMin").property("value");
-        const yMax = +d3.select("#yMax").property("value");
-
-        // Update domains
-        xScale.domain([xMin, xMax]);
-        yScale.domain([yMin, yMax]);
-
-        // Update axes
-        xAxisGroup.call(xAxis);
-        yAxisGroup.call(yAxis);
-
-        // Update line paths
-        lines.attr("d", d => line(d[1]));
-    }
-}
+        .attr("width",
