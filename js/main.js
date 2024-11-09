@@ -69,7 +69,7 @@ function createVisualization(data) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Create a clip path to prevent lines from extending beyond the chart area
+    // Clip path to prevent lines from extending outside chart bounds
     svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
@@ -118,8 +118,51 @@ function createVisualization(data) {
         .style("stroke-width", 1.5)
         .attr("id", d => d[0].country.replace(/\s+/g, '_'));  // Assign a unique ID to each line
 
-    // Create a legend with checkboxes for each country
-    const legendContainer = d3.select("#legend-container");
+    // Tooltip to show information
+    const tooltip = d3.select("#tooltip");
 
-    data.forEach((countryData, i) => {
-        const countryName =
+    lines.on("mouseover", function (event, d) {
+            d3.select(this)
+                .style("stroke-width", 3)
+                .style("stroke", "orange");
+
+            tooltip.style("visibility", "visible")
+                .style("top", `${event.pageY - 20}px`)
+                .style("left", `${event.pageX + 20}px`)
+                .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
+        })
+        .on("mousemove", function (event) {
+            tooltip.style("top", `${event.pageY - 20}px`)
+                .style("left", `${event.pageX + 20}px`);
+        })
+        .on("mouseout", function (event, d) {
+            d3.select(this)
+                .style("stroke-width", 1.5)
+                .style("stroke", d3.schemeCategory10[data.indexOf(d) % 10]); // Revert to original color
+            tooltip.style("visibility", "hidden");
+        });
+
+    // Set up filters for interaction
+    d3.select("#yearMin").on("input", updateChart);
+    d3.select("#yearMax").on("input", updateChart);
+    d3.select("#gdpMin").on("input", updateChart);
+    d3.select("#gdpMax").on("input", updateChart);
+
+    function updateChart() {
+        const yearMin = +d3.select("#yearMin").property("value");
+        const yearMax = +d3.select("#yearMax").property("value");
+        const gdpMin = +d3.select("#gdpMin").property("value");
+        const gdpMax = +d3.select("#gdpMax").property("value");
+
+        // Update scales
+        xScale.domain([yearMin, yearMax]);
+        yScale.domain([gdpMin, gdpMax]);
+
+        // Update axes
+        xAxisGroup.call(xAxis);
+        yAxisGroup.call(yAxis);
+
+        // Update lines
+        lines.attr("d", d => line(d));
+    }
+}
