@@ -59,6 +59,14 @@ function createVisualization(data) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    // Create a clip path to ensure lines do not exceed the chart area
+    svg.append("defs")
+        .append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height);
+
     // Set up scales for the x and y axes
     let xScale = d3.scaleLinear()
         .domain([2000, 2020])
@@ -92,8 +100,10 @@ function createVisualization(data) {
     // Create the tooltip
     const tooltip = d3.select("#tooltip");
 
-    // Draw a line for each country
-    const lines = svg.selectAll(".line")
+    // Draw a line for each country and apply the clipping path
+    const lines = svg.append("g")
+        .attr("clip-path", "url(#clip)")  // Apply the clip path
+        .selectAll(".line")
         .data(nestedData)
         .enter()
         .append("path")
