@@ -34,7 +34,7 @@ h1 {
 }
 
 #visualization {
-    flex: 3; /* Visualization takes more space */
+    flex: 2; /* Visualization takes more space */
     padding: 20px;
     border: 2px solid #0073e6;
     border-radius: 8px;

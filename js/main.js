@@ -153,11 +153,13 @@ function createVisualization(data) {
                 .style("stroke", "orange");
 
             tooltip.style("visibility", "visible")
+                .style("top", `${event.pageY - 20}px`)
+                .style("left", `${event.pageX + 20}px`)
                 .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
         })
         .on("mousemove", function (event) {
-            tooltip.style("top", (event.pageY - 10) + "px")
-                .style("left", (event.pageX + 10) + "px");
+            tooltip.style("top", `${event.pageY - 20}px`)
+                .style("left", `${event.pageX + 20}px`);
         })
         .on("mouseout", function (event, d) {
             d3.select(this)
