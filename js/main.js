@@ -39,7 +39,7 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
                     countryData.forEach(point => {
                         point.gdp_growth = point.gdp_growth - baseValue;
                     });
-                    reshapedData.push(...countryData);
+                    reshapedData.push(countryData);
                 }
             }
         });
@@ -57,7 +57,7 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
 // Function to create the visualization
 function createVisualization(data) {
     // Set the dimensions and margins for the SVG
-    const margin = { top: 50, right: 150, bottom: 100, left: 100 };
+    const margin = { top: 50, right: 200, bottom: 100, left: 100 };
     const width = 800 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -75,7 +75,7 @@ function createVisualization(data) {
         .range([0, width]);
 
     let yScale = d3.scaleLinear()
-        .domain([d3.min(data, d => d.gdp_growth), d3.max(data, d => d.gdp_growth)])
+        .domain([d3.min(data.flat(), d => d.gdp_growth), d3.max(data.flat(), d => d.gdp_growth)])
         .range([height, 0]);
 
     // Set up the x and y axes
@@ -96,28 +96,28 @@ function createVisualization(data) {
         .x(d => xScale(d.year))
         .y(d => yScale(d.gdp_growth));
 
-    // Group the data by country
-    const nestedData = d3.group(data, d => d.country);
-
     // Draw a line for each country and apply the clipping path
-    const lines = svg.append("g")
+    const linesGroup = svg.append("g")
         .attr("clip-path", "url(#clip)")  // Apply the clip path
-        .selectAll(".line")
-        .data(nestedData)
+
+    const lines = linesGroup.selectAll(".line")
+        .data(data)
         .enter()
         .append("path")
         .attr("class", "line")
-        .attr("d", d => line(d[1]))
+        .attr("d", d => line(d))
         .style("fill", "none")
         .style("stroke", (d, i) => d3.schemeCategory10[i % 10])
         .style("stroke-width", 1.5)
-        .attr("id", d => d[0].replace(/\s+/g, '_'));  // Assign a unique ID to each line
+        .attr("id", d => d[0].country.replace(/\s+/g, '_'));  // Assign a unique ID to each line
 
     // Create a legend with checkboxes for each country
     const legendContainer = d3.select("#visualization-container").append("div")
         .attr("class", "legend-container");
 
-    nestedData.forEach((countryData, countryName, map) => {
+    data.forEach((countryData, i) => {
+        const countryName = countryData[0].country;
+
         // Create a container for each checkbox and label
         const legendItem = legendContainer.append("div")
             .attr("class", "legend-item");
@@ -142,18 +142,28 @@ function createVisualization(data) {
             .attr("for", countryName.replace(/\s+/g, '_'))
             .text(countryName)
             .style("margin-left", "8px")
-            .style("color", d3.schemeCategory10[[...nestedData.keys()].indexOf(countryName) % 10]); // Match the color of the line
+            .style("color", d3.schemeCategory10[i % 10]); // Match the color of the line
     });
 
-    // Update the chart when sliders are used
-    d3.select("#xMin").on("input", updateChart);
-    d3.select("#xMax").on("input", updateChart);
-    d3.select("#yMin").on("input", updateChart);
-    d3.select("#yMax").on("input", updateChart);
+    // Tooltip to show information
+    const tooltip = d3.select("#tooltip");
 
-    // Add reset button functionality
-    d3.select("#resetButton").on("click", function() {
-        d3.select("#xMin").property("value", 2000);
-        d3.select("#xMax").property("value", 2020);
-        d3.select("#yMin").property("value", d3.min(data, d => d.gdp_growth));
-        d3.select("#yMax").property("value", d3.max(data, d =>
+    lines.on("mouseover", function (event, d) {
+            d3.select(this)
+                .style("stroke-width", 3)
+                .style("stroke", "orange");
+
+            tooltip.style("visibility", "visible")
+                .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
+        })
+        .on("mousemove", function (event) {
+            tooltip.style("top", (event.pageY - 10) + "px")
+                .style("left", (event.pageX + 10) + "px");
+        })
+        .on("mouseout", function (event, d) {
+            d3.select(this)
+                .style("stroke-width", 1.5)
+                .style("stroke", d3.schemeCategory10[i % 10]);
+            tooltip.style("visibility", "hidden");
+        });
+}
