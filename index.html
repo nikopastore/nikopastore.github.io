@@ -12,6 +12,7 @@
 
     <div class="container">
         <h1>GDP Annual Growth: 2000-2020 (Top 10 Countries)</h1>
+
         <div id="controls">
             <label for="yearMin">Year Min:</label>
             <input type="range" id="yearMin" min="2000" max="2020" value="2000">
@@ -30,8 +31,26 @@
         </div>
 
         <div id="writeup">
-            <h2>Write-Up</h2>
-            <p>This interactive visualization allows you to explore the GDP annual growth of the top 10 countries from 2000 to 2020. Use the available interactions to better understand growth trends and compare different countries across the time span.</p>
+            <h2 class="section-title">Data Source</h2>
+            <p>The data used in this visualization comes from the World Bank, which tracks GDP annual growth rates for countries globally. The dataset includes annual GDP growth information for each of the top 10 economies from 2000 to 2020.</p>
+
+            <h2 class="section-title">Interpretation of GDP Annual Growth</h2>
+            <p>GDP annual growth represents the percentage change in the country's gross domestic product from one year to the next. This metric provides insights into the economic health and growth trends of a country over time. Higher growth rates can indicate a rapidly expanding economy, while negative growth may suggest a recession or economic contraction.</p>
+
+            <h2 class="section-title">Tips for Using the Visualization</h2>
+            <ul>
+                <li><strong>Select a Country:</strong> Use the checkboxes on the right to include or exclude specific countries from the visualization for comparison purposes.</li>
+                <li><strong>Adjust the Time Range:</strong> Use the year range sliders to focus on specific periods of interest, allowing you to compare trends over shorter time spans.</li>
+                <li><strong>Hover for Details:</strong> Hover over the lines in the chart to see detailed information, including GDP growth rate and the corresponding year for each country.</li>
+                <li><strong>Highlight a Line:</strong> Click on a country name in the legend to highlight its line, making it easier to compare it to others.</li>
+                <li><strong>Adjust GDP Range:</strong> Use the GDP range sliders to focus on specific growth ranges, allowing for more detailed analysis of countries with similar growth trends.</li>
+            </ul>
+
+            <h2 class="section-title">References</h2>
+            <ul>
+                <li>World Bank: GDP Annual Growth Rate (2000-2020)</li>
+                <li><a href="https://github.com/yourusername/yourrepository" target="_blank">GitHub Repository - Project Overview and Design Rationale</a></li>
+            </ul>
         </div>
     </div>
     <script src="js/main.js"></script>
