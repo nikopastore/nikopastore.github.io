@@ -132,11 +132,14 @@ function createVisualization(data) {
                 .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
         })
         .on("mousemove", function (event) {
-            // Debugging for tooltip positioning
-            console.log("Mousemove Event - pageX:", event.pageX, "pageY:", event.pageY);
+            const mouseX = event.pageX;
+            const mouseY = event.pageY;
 
-            tooltip.style("top", `${event.pageY + 10}px`)
-                .style("left", `${event.pageX + 10}px`);
+            // Debugging for tooltip positioning
+            console.log("Tooltip Position - X:", mouseX, "Y:", mouseY);
+
+            tooltip.style("top", `${mouseY + 10}px`)
+                .style("left", `${mouseX + 10}px`);
         })
         .on("mouseout", function () {
             const originalColor = d3.select(this).attr("data-original-color");

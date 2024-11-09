@@ -64,7 +64,7 @@ h1 {
 }
 
 .tooltip {
-    position: absolute;
+    position: fixed; /* Ensure tooltip is positioned relative to the viewport */
     background-color: #ffffff;
     border: 1px solid #cccccc;
     padding: 10px;
@@ -76,6 +76,7 @@ h1 {
     visibility: hidden;
     z-index: 10;
 }
+
 
 #writeup {
     text-align: center;
