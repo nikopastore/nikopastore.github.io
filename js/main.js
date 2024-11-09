@@ -57,7 +57,7 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
 // Function to create the visualization
 function createVisualization(data) {
     // Set the dimensions and margins for the SVG
-    const margin = { top: 50, right: 50, bottom: 100, left: 100 };
+    const margin = { top: 50, right: 200, bottom: 100, left: 100 };
     const width = 700 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -161,13 +161,36 @@ function createVisualization(data) {
         .on("mousemove", function (event) {
             tooltipGroup.attr("transform", `translate(${event.pageX - margin.left - 160},${event.pageY - margin.top - 100})`);
         })
-        .on("mouseout", function () {
+        .on("mouseout", function (event, d) {
             d3.select(this)
                 .style("stroke-width", 1.5)
-                .style("stroke", d3.schemeCategory10[data.indexOf(d) % 10]);
+                .style("stroke", (d, i) => d3.schemeCategory10[i % 10]);  // Revert to original color
 
             tooltipGroup.style("display", "none");
         });
+
+    // Add checkboxes for each country
+    const checkboxContainer = d3.select("#legend-container");
+
+    data.forEach((d, i) => {
+        const countryName = d[0].country;
+
+        const checkbox = checkboxContainer.append("div")
+            .attr("class", "checkbox-item");
+
+        checkbox.append("input")
+            .attr("type", "checkbox")
+            .attr("id", `checkbox-${i}`)
+            .attr("checked", true)
+            .on("change", function () {
+                const lineId = `#${countryName.replace(/\s+/g, '_')}`;
+                d3.select(lineId).style("display", this.checked ? null : "none");
+            });
+
+        checkbox.append("label")
+            .attr("for", `checkbox-${i}`)
+            .text(countryName);
+    });
 
     // Set up filters for interaction
     d3.select("#yearMin").on("input", updateChart);
