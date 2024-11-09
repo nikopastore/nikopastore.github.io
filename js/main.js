@@ -88,7 +88,7 @@ function createVisualization(data) {
 
     // Set up the x and y axes
     const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
-    const yAxis = d3.axisLeft(yScale);
+    const yAxis = d3.axisLeft(yScale).tickFormat(d => `${d}%`);
 
     // Append x-axis to the SVG
     const xAxisGroup = svg.append("g")
