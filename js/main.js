@@ -112,8 +112,7 @@ function createVisualization(data) {
         .attr("id", d => d[0].country.replace(/\s+/g, '_'));  // Assign a unique ID to each line
 
     // Create a legend with checkboxes for each country
-    const legendContainer = d3.select("#visualization-container").append("div")
-        .attr("class", "legend-container");
+    const legendContainer = d3.select(".legend-container");
 
     data.forEach((countryData, i) => {
         const countryName = countryData[0].country;
