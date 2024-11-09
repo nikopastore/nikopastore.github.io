@@ -36,6 +36,9 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
             }
         });
 
+        // Log reshaped data to check correctness
+        console.log("Reshaped Data:", reshapedData);
+
         // Proceed to create the visualization
         createVisualization(reshapedData);
     })
@@ -57,6 +60,14 @@ function createVisualization(data) {
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    // Create a clip path to ensure lines do not exceed the chart area
+    svg.append("defs")
+        .append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height);
 
     // Set up scales for the x and y axes
     let xScale = d3.scaleLinear()
@@ -85,30 +96,29 @@ function createVisualization(data) {
         .x(d => xScale(d.year))
         .y(d => yScale(d.gdp_growth));
 
-    // Draw a line for each country
-    const lines = svg.selectAll(".line")
+    // Create the tooltip
+    const tooltip = d3.select("#tooltip");
+
+    // Draw a line for each country and apply the clipping path
+    let linesGroup = svg.append("g")
+        .attr("clip-path", "url(#clip)");  // Apply the clip path
+
+    let lines = linesGroup.selectAll(".line")
         .data(data)
         .enter()
         .append("path")
         .attr("class", "line")
-        .attr("d", d => line(d))
         .style("fill", "none")
         .style("stroke", (d, i) => d3.schemeCategory10[i % 10])
-        .style("stroke-width", 1.5);
-
-    // Create a tooltip (invisible initially)
-    const tooltip = d3.select("#tooltip")
-        .style("position", "absolute")
-        .style("visibility", "hidden")
-        .style("background-color", "#fff")
-        .style("border", "1px solid #ccc")
-        .style("padding", "10px")
-        .style("font-size", "12px");
-
-    // Add hover interaction
-    lines
-        .on("mouseover", function(event, d) {
-            d3.select(this).style("stroke-width", 2.5); // Increase stroke width to indicate highlight
+        .style("stroke-width", 1.5)
+        .each(function (d, i) {
+            // Store the original color in the data for later use
+            d.originalColor = d3.schemeCategory10[i % 10];
+        })
+        .on("mouseover", function (event, d) {
+            d3.select(this)
+                .style("stroke-width", 3)
+                .style("stroke", "orange");
 
             // Get the current x-axis minimum value
             const xMin = +d3.select("#xMin").property("value");
@@ -128,22 +138,55 @@ function createVisualization(data) {
                     .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>Total GDP Growth from ${xMin}:</strong> ${totalChange.toFixed(2)}%`);
             }
         })
-        .on("mousemove", function(event) {
+        .on("mousemove", function (event) {
             tooltip.style("top", (event.pageY - 10) + "px")
                 .style("left", (event.pageX + 10) + "px");
         })
-        .on("mouseout", function() {
-            d3.select(this).style("stroke-width", 1.5); // Reset stroke width
+        .on("mouseout", function (event, d) {
+            if (!d.isPinned) {
+                d3.select(this)
+                    .style("stroke-width", 1.5)
+                    .style("stroke", d.originalColor);
+            }
             tooltip.style("visibility", "hidden");
+        })
+        .on("click", function (event, d) {
+            d.isPinned = !d.isPinned;
+            if (d.isPinned) {
+                d3.select(this).style("stroke-width", 3).style("stroke", "blue");
+            } else {
+                d3.select(this).style("stroke-width", 1.5).style("stroke", d.originalColor);
+            }
         });
 
-    // Add update functionality
+    // Add a legend for the lines, placing it outside of the clipping path
+    const legend = svg.selectAll(".legend")
+        .data(data)
+        .enter()
+        .append("g")
+        .attr("class", "legend")
+        .attr("transform", (d, i) => `translate(0,${i * 20})`);
+
+    legend.append("rect")
+        .attr("x", width + 20)
+        .attr("width", 10)
+        .attr("height", 10)
+        .style("fill", (d, i) => d3.schemeCategory10[i % 10]);
+
+    legend.append("text")
+        .attr("x", width + 35)
+        .attr("y", 5)
+        .attr("dy", ".35em")
+        .style("text-anchor", "start")
+        .text(d => d[0]?.country || "");
+
+    // Update the chart when sliders are used
     d3.select("#xMin").on("input", updateChart);
     d3.select("#xMax").on("input", updateChart);
     d3.select("#yMin").on("input", updateChart);
     d3.select("#yMax").on("input", updateChart);
 
-    // Reset button
+    // Add reset button functionality
     d3.select("#resetButton").on("click", function() {
         d3.select("#xMin").property("value", 2000);
         d3.select("#xMax").property("value", 2020);
@@ -153,34 +196,36 @@ function createVisualization(data) {
     });
 
     function updateChart() {
-        // Get current slider values
+        // Get slider values
         const xMin = +d3.select("#xMin").property("value");
         const xMax = +d3.select("#xMax").property("value");
         const yMin = +d3.select("#yMin").property("value");
         const yMax = +d3.select("#yMax").property("value");
 
-        // Update domains
-        xScale.domain([xMin, xMax]);
-        yScale.domain([yMin, yMax]);
-
-        // Update axes
-        xAxisGroup.call(xAxis);
-        yAxisGroup.call(yAxis);
-
-        // Normalize data based on new xMin
-        const normalizedData = data.map(countryData => {
-            const startValue = countryData.find(point => point.year === xMin)?.gdp_growth || 0;
+        // Normalize data based on xMin
+        let normalizedData = data.map(countryData => {
+            let startValue = countryData.find(point => point.year === xMin)?.gdp_growth || 0;
             return countryData.map(point => ({
                 ...point,
                 gdp_growth: point.gdp_growth - startValue
             }));
         });
 
-        // Update line paths
+        // Update y-axis domain based on new normalized data
+        yScale.domain([yMin, yMax]);
+
+        // Update x-axis domain
+        xScale.domain([xMin, xMax]);
+
+        // Update axes
+        xAxisGroup.call(xAxis);
+        yAxisGroup.call(yAxis);
+
+        // Update line paths with normalized data
         lines.data(normalizedData)
             .attr("d", d => line(d));
     }
 
-    // Initial call to ensure everything is displayed
+    // Call updateChart initially to ensure lines are drawn on load
     updateChart();
 }
