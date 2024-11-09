@@ -37,12 +37,10 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
     });
 
     function createVisualization(data) {
-        // Set the dimensions and margins for the SVG
         const margin = { top: 50, right: 150, bottom: 50, left: 100 };
         const width = 800 - margin.left - margin.right;
         const height = 400 - margin.top - margin.bottom;
     
-        // Create an SVG container
         const svg = d3.select("#visualization")
             .append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -50,7 +48,6 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
             .append("g")
             .attr("transform", `translate(${margin.left},${margin.top})`);
     
-        // Set up scales for the x and y axes
         const xScale = d3.scaleLinear()
             .domain([2000, 2020])
             .range([0, width]);
@@ -59,28 +56,22 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
             .domain(d3.extent(data, d => d.gdp_growth))
             .range([height, 0]);
     
-        // Set up the x and y axes
         const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d"));
         const yAxis = d3.axisLeft(yScale);
     
-        // Append x-axis to the SVG
         svg.append("g")
             .attr("transform", `translate(0, ${height})`)
             .call(xAxis);
     
-        // Append y-axis to the SVG
         svg.append("g")
             .call(yAxis);
     
-        // Create a line generator function
         const line = d3.line()
             .x(d => xScale(d.year))
             .y(d => yScale(d.gdp_growth));
     
-        // Group the data by country
         const nestedData = d3.group(data, d => d.country);
     
-        // Draw a line for each country
         svg.selectAll(".line")
             .data(nestedData)
             .enter()
@@ -91,7 +82,6 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
             .style("stroke", (d, i) => d3.schemeCategory10[i % 10])
             .style("stroke-width", 1.5);
     
-        // Add a legend for the lines
         const legend = svg.selectAll(".legend")
             .data(nestedData.keys())
             .enter()
