@@ -4,17 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GDP Annual Growth Visualization</title>
+    <!-- Include D3.js -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Include d3-simple-slider for the sliders -->
+    <script src="https://cdn.jsdelivr.net/npm/d3-simple-slider@1.6.3/d3-simple-slider.min.js"></script>
+    <!-- Styles for the d3-simple-slider -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/d3-simple-slider/1.6.3/d3-simple-slider.min.css">
+    <!-- Link to your own stylesheet -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>GDP Annual Growth: 2000-2020 (Top 10 Countries)</h1>
+    <!-- Visualization container -->
     <div id="visualization"></div>
+    <!-- Write-up section -->
     <div id="writeup">
         <h2>Write-Up</h2>
-        <p>This interactive visualization allows you to explore the GDP annual growth of the top 10 countries from 2000 to 2020. Use the available interactions to better understand growth trends and compare different countries across the time span.</p>
+        <p>This interactive visualization allows you to explore the GDP annual growth of the top 10 countries from 2000 to 2020. Use the sliders to filter the time frame and GDP growth range, and interact with the chart to better understand growth trends and compare different countries across the time span.</p>
     </div>
+    <!-- Tooltip for showing data details -->
     <div id="tooltip" style="position: absolute; visibility: hidden; background-color: white; border: 1px solid #ccc; padding: 10px; font-size: 12px;"></div>
+    <!-- Link to your JavaScript file -->
     <script src="js/main.js"></script>
 </body>
 </html>
