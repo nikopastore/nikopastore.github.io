@@ -111,12 +111,14 @@ function createVisualization(data) {
         .style("fill", "none")
         .style("stroke", (d, i) => d3.schemeCategory10[i % 10])
         .style("stroke-width", 1.5)
+        .attr("d", d => line(d))  // Draw the initial lines
         .each(function (d, i) {
             // Store the original color in the data for later use
             d.originalColor = d3.schemeCategory10[i % 10];
         })
         .on("mouseover", function (event, d) {
             d3.select(this)
+                .raise() // Bring the line to the front to make it visible when highlighted
                 .style("stroke-width", 3)
                 .style("stroke", "orange");
 
