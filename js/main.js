@@ -122,7 +122,9 @@ function createVisualization(data) {
     const tooltip = d3.select("#tooltip");
 
     lines.on("mouseover", function (event, d) {
+            const originalColor = d3.select(this).style("stroke");
             d3.select(this)
+                .attr("data-original-color", originalColor)  // Store the original color in an attribute
                 .style("stroke-width", 3)
                 .style("stroke", "orange");
 
@@ -130,13 +132,14 @@ function createVisualization(data) {
                 .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
         })
         .on("mousemove", function (event) {
-            tooltip.style("top", `${event.clientY + window.scrollY + 10}px`)
-                .style("left", `${event.clientX + 10}px`);
+            tooltip.style("top", `${event.pageY + 10}px`)
+                .style("left", `${event.pageX + 10}px`);
         })
-        .on("mouseout", function (event, d) {
+        .on("mouseout", function () {
+            const originalColor = d3.select(this).attr("data-original-color");
             d3.select(this)
                 .style("stroke-width", 1.5)
-                .style("stroke", (d, i) => d3.schemeCategory10[i % 10]); // Revert to original color
+                .style("stroke", originalColor);  // Revert to original color
             tooltip.style("visibility", "hidden");
         });
 
