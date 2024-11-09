@@ -8,17 +8,39 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>GDP Annual Growth: 2000-2020 (Top 10 Countries)</h1>
-        <div id="visualization-container">
-            <div id="visualization"></div>
-        </div>
-        <div id="writeup">
-            <h2>Write-Up</h2>
-            <p>This interactive visualization allows you to explore the GDP annual growth of the top 10 countries from 2000 to 2020. Use the available interactions to better understand growth trends and compare different countries across the time span.</p>
-        </div>
+    <h1>GDP Annual Growth: 2000-2020 (Top 10 Countries)</h1>
+    <!-- Visualization container -->
+    <div id="visualization"></div>
+
+    <!-- X-axis slider controls -->
+    <div id="x-axis-slider">
+        <label for="year-range">Select Year Range:</label><br>
+        <input type="range" id="xMin" min="2000" max="2020" value="2000" step="1">
+        <input type="range" id="xMax" min="2000" max="2020" value="2020" step="1">
     </div>
-    <div id="tooltip" class="tooltip" style="visibility: hidden;"></div>
+
+    <!-- Y-axis slider controls -->
+    <div id="y-axis-slider" style="margin-top: 20px;">
+        <label for="gdp-range">Select GDP Growth Range (%):</label><br>
+        <input type="range" id="yMin" min="-10" max="15" value="-10" step="1">
+        <input type="range" id="yMax" min="-10" max="15" value="15" step="1">
+    </div>
+
+    <!-- Reset button for sliders -->
+    <div style="margin-top: 20px;">
+        <button id="resetButton">Reset Filters</button>
+    </div>
+
+    <!-- Write-up section -->
+    <div id="writeup">
+        <h2>Write-Up</h2>
+        <p>This interactive visualization allows you to explore the GDP annual growth of the top 10 countries from 2000 to 2020. Use the sliders above to filter the time frame and GDP growth range, click on a line to highlight it, and interact with the chart to better understand growth trends and compare different countries across the time span.</p>
+    </div>
+
+    <!-- Tooltip for showing data details -->
+    <div id="tooltip" style="position: absolute; visibility: hidden; background-color: white; border: 1px solid #ccc; padding: 10px; font-size: 12px;"></div>
+
+    <!-- Link to your JavaScript file -->
     <script src="js/main.js"></script>
 </body>
 </html>
