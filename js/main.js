@@ -118,30 +118,55 @@ function createVisualization(data) {
         .style("stroke-width", 1.5)
         .attr("id", d => d[0].country.replace(/\s+/g, '_'));  // Assign a unique ID to each line
 
-    // Tooltip to show information
-    const tooltip = d3.select("#tooltip");
+    // Add tooltip as part of the SVG container
+    const tooltipGroup = svg.append("g")
+        .attr("class", "tooltip-group")
+        .style("display", "none");
+
+    const tooltipBox = tooltipGroup.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", 150)
+        .attr("height", 60)
+        .attr("fill", "#ffffff")
+        .attr("stroke", "#cccccc")
+        .attr("rx", 4)
+        .attr("ry", 4)
+        .style("pointer-events", "none");
+
+    const tooltipText = tooltipGroup.append("text")
+        .attr("x", 10)
+        .attr("y", 20)
+        .attr("fill", "#333")
+        .style("font-size", "12px");
 
     lines.on("mouseover", function (event, d) {
-            const originalColor = d3.select(this).style("stroke");
             d3.select(this)
-                .attr("data-original-color", originalColor)  // Store the original color in an attribute
                 .style("stroke-width", 3)
                 .style("stroke", "orange");
 
-            tooltip.style("visibility", "visible")
-                .html(`<strong>Country:</strong> ${d[0].country}<br><strong>Year:</strong> ${d[d.length - 1].year}<br><strong>GDP Growth:</strong> ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
+            tooltipGroup.style("display", null)
+                .raise();
+
+            tooltipText.text(`Country: ${d[0].country}`);
+            tooltipText.append("tspan")
+                .attr("x", 10)
+                .attr("dy", 20)
+                .text(`Year: ${d[d.length - 1].year}`);
+            tooltipText.append("tspan")
+                .attr("x", 10)
+                .attr("dy", 20)
+                .text(`GDP Growth: ${d[d.length - 1].gdp_growth.toFixed(2)}%`);
         })
         .on("mousemove", function (event) {
-            // Use event.pageX and event.pageY to set the position
-            tooltip.style("top", `${event.pageY + 10}px`)
-                .style("left", `${event.pageX + 10}px`);
+            tooltipGroup.attr("transform", `translate(${event.pageX - margin.left - 160},${event.pageY - margin.top - 100})`);
         })
         .on("mouseout", function () {
-            const originalColor = d3.select(this).attr("data-original-color");
             d3.select(this)
                 .style("stroke-width", 1.5)
-                .style("stroke", originalColor);  // Revert to original color
-            tooltip.style("visibility", "hidden");
+                .style("stroke", d3.schemeCategory10[data.indexOf(d) % 10]);
+
+            tooltipGroup.style("display", "none");
         });
 
     // Set up filters for interaction
