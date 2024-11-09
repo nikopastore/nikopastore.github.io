@@ -114,7 +114,11 @@ function createVisualization(data) {
         .attr("class", "line")
         .attr("d", d => line(d))
         .style("fill", "none")
-        .style("stroke", (d, i) => d3.schemeCategory10[i % 10])
+        .style("stroke", (d, i) => {
+            const color = d3.schemeCategory10[i % 10];
+            d.originalColor = color; // Store the original color in data for reversion
+            return color;
+        })
         .style("stroke-width", 1.5)
         .attr("id", d => d[0].country.replace(/\s+/g, '_'));  // Assign a unique ID to each line
 
@@ -164,7 +168,7 @@ function createVisualization(data) {
         .on("mouseout", function (event, d) {
             d3.select(this)
                 .style("stroke-width", 1.5)
-                .style("stroke", (d, i) => d3.schemeCategory10[i % 10]);  // Revert to original color
+                .style("stroke", d.originalColor);  // Revert to the original color stored in data
 
             tooltipGroup.style("display", "none");
         });

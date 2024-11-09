@@ -22,10 +22,13 @@
             <label for="gdpMax">GDP Max:</label>
             <input type="range" id="gdpMax" min="-10" max="10" value="10">
         </div>
-        <div id="content-wrapper">
+
+        <!-- Wrapper to keep the chart and checkboxes side-by-side -->
+        <div id="content-wrapper" class="content-wrapper">
             <div id="visualization"></div>
             <div id="legend-container" class="legend-container"></div>
         </div>
+
         <div id="writeup">
             <h2>Write-Up</h2>
             <p>This interactive visualization allows you to explore the GDP annual growth of the top 10 countries from 2000 to 2020. Use the available interactions to better understand growth trends and compare different countries across the time span.</p>
