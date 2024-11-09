@@ -118,7 +118,6 @@ function createVisualization(data) {
         })
         .on("mouseover", function (event, d) {
             d3.select(this)
-                .raise() // Bring the line to the front to make it visible when highlighted
                 .style("stroke-width", 3)
                 .style("stroke", "orange");
 
