@@ -60,11 +60,11 @@ function createVisualization(data) {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // Set up scales for the x and y axes
-    const xScale = d3.scaleLinear()
+    let xScale = d3.scaleLinear()
         .domain([2000, 2020])
         .range([0, width]);
 
-    const yScale = d3.scaleLinear()
+    let yScale = d3.scaleLinear()
         .domain(d3.extent(data, d => d.gdp_growth))
         .range([height, 0]);
 
@@ -153,7 +153,7 @@ function createVisualization(data) {
         .on("brush end", brushedX);
 
     svg.append("g")
-        .attr("class", "brush")
+        .attr("class", "brush-x")
         .call(brushX);
 
     // Add brush for the y-axis (GDP filter)
