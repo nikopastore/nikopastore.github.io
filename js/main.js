@@ -32,15 +32,7 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
                         });
                     }
                 });
-
-                // Normalize the data to start from 0 in the year 2000
-                if (countryData.length > 0) {
-                    const baseValue = countryData.find(point => point.year === 2000).gdp_growth;
-                    countryData.forEach(point => {
-                        point.gdp_growth = point.gdp_growth - baseValue;
-                    });
-                    reshapedData.push(...countryData);
-                }
+                reshapedData.push(countryData);
             }
         });
 
@@ -69,21 +61,13 @@ function createVisualization(data) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Create a clip path to ensure lines do not exceed the chart area
-    svg.append("defs")
-        .append("clipPath")
-        .attr("id", "clip")
-        .append("rect")
-        .attr("width", width)
-        .attr("height", height);
-
     // Set up scales for the x and y axes
     let xScale = d3.scaleLinear()
         .domain([2000, 2020])
         .range([0, width]);
 
     let yScale = d3.scaleLinear()
-        .domain([d3.min(data, d => d.gdp_growth), d3.max(data, d => d.gdp_growth)])
+        .domain([d3.min(data.flat(), d => d.gdp_growth), d3.max(data.flat(), d => d.gdp_growth)])
         .range([height, 0]);
 
     // Set up the x and y axes
@@ -104,124 +88,49 @@ function createVisualization(data) {
         .x(d => xScale(d.year))
         .y(d => yScale(d.gdp_growth));
 
-    // Group the data by country
-    const nestedData = d3.group(data, d => d.country);
-
-    // Create the tooltip
-    const tooltip = d3.select("#tooltip");
-
-    // Draw a line for each country and apply the clipping path
-    const lines = svg.append("g")
-        .attr("clip-path", "url(#clip)")  // Apply the clip path
-        .selectAll(".line")
-        .data(nestedData)
+    // Draw a line for each country
+    let lines = svg.selectAll(".line")
+        .data(data)
         .enter()
         .append("path")
         .attr("class", "line")
-        .attr("d", d => line(d[1]))
+        .attr("d", d => line(d))
         .style("fill", "none")
         .style("stroke", (d, i) => d3.schemeCategory10[i % 10])
         .style("stroke-width", 1.5)
-        .each(function (d, i) {
-            // Store the original color in the data for later use
-            d.originalColor = d3.schemeCategory10[i % 10];
-        })
-        .on("mouseover", function (event, d) {
-            d3.select(this)
-                .style("stroke-width", 3)
-                .style("stroke", "orange");
+        .attr("id", d => d[0].country.replace(/\s+/g, '_')); // Give each line an id based on the country name
 
-            // Get the current x-axis minimum value
-            const xMin = +d3.select("#xMin").property("value");
+    // Create a checkbox filter for each country
+    const legendContainer = d3.select("#visualization-container").append("div")
+        .attr("class", "legend-container");
 
-            // Get the nearest data point to the mouse
-            const mouseYear = Math.round(xScale.invert(event.offsetX - margin.left));
-            const dataPoint = d[1].find(point => point.year === mouseYear);
+    data.forEach((countryData, i) => {
+        const countryName = countryData[0].country;
 
-            // Find the starting data point for the current visible range
-            const startPoint = d[1].find(point => point.year === xMin);
+        // Create a container for each checkbox and label
+        let legendItem = legendContainer.append("div")
+            .attr("class", "legend-item");
 
-            if (dataPoint && startPoint) {
-                // Calculate the total percentage change from the starting year
-                const totalChange = dataPoint.gdp_growth - startPoint.gdp_growth;
+        // Add the checkbox
+        legendItem.append("input")
+            .attr("type", "checkbox")
+            .attr("id", countryName.replace(/\s+/g, '_'))
+            .attr("checked", true) // Initially, all lines are visible
+            .on("change", function() {
+                const isChecked = d3.select(this).property("checked");
+                const lineId = `#${countryName.replace(/\s+/g, '_')}`;
+                if (isChecked) {
+                    d3.select(lineId).style("display", null);
+                } else {
+                    d3.select(lineId).style("display", "none");
+                }
+            });
 
-                tooltip.style("visibility", "visible")
-                    .html(`<strong>Country:</strong> ${d[0]}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>Total GDP Growth from ${xMin}:</strong> ${totalChange.toFixed(2)}%`);
-            }
-        })
-        .on("mousemove", function (event) {
-            tooltip.style("top", (event.pageY - 10) + "px")
-                .style("left", (event.pageX + 10) + "px");
-        })
-        .on("mouseout", function (event, d) {
-            if (!d.isPinned) {
-                d3.select(this)
-                    .style("stroke-width", 1.5)
-                    .style("stroke", d.originalColor);
-            }
-            tooltip.style("visibility", "hidden");
-        })
-        .on("click", function (event, d) {
-            d.isPinned = !d.isPinned;
-            if (d.isPinned) {
-                d3.select(this).style("stroke-width", 3).style("stroke", "blue");
-            } else {
-                d3.select(this).style("stroke-width", 1.5).style("stroke", d.originalColor);
-            }
-        });
-
-    // Add a legend for the lines, placing it outside of the clipping path
-    const legend = svg.selectAll(".legend")
-        .data(nestedData.keys())
-        .enter()
-        .append("g")
-        .attr("class", "legend")
-        .attr("transform", (d, i) => `translate(0,${i * 20})`);
-
-    legend.append("rect")
-        .attr("x", width + 20)
-        .attr("width", 10)
-        .attr("height", 10)
-        .style("fill", (d, i) => d3.schemeCategory10[i % 10]);
-
-    legend.append("text")
-        .attr("x", width + 35)
-        .attr("y", 5)
-        .attr("dy", ".35em")
-        .style("text-anchor", "start")
-        .text(d => d);
-
-    // Update the chart when sliders are used
-    d3.select("#xMin").on("input", updateChart);
-    d3.select("#xMax").on("input", updateChart);
-    d3.select("#yMin").on("input", updateChart);
-    d3.select("#yMax").on("input", updateChart);
-
-    // Add reset button functionality
-    d3.select("#resetButton").on("click", function() {
-        d3.select("#xMin").property("value", 2000);
-        d3.select("#xMax").property("value", 2020);
-        d3.select("#yMin").property("value", d3.min(data, d => d.gdp_growth));
-        d3.select("#yMax").property("value", d3.max(data, d => d.gdp_growth));
-        updateChart();
+        // Add the label next to the checkbox
+        legendItem.append("label")
+            .attr("for", countryName.replace(/\s+/g, '_'))
+            .text(countryName)
+            .style("margin-left", "8px")
+            .style("color", d3.schemeCategory10[i % 10]); // Match the color of the line
     });
-
-    function updateChart() {
-        // Get slider values
-        const xMin = +d3.select("#xMin").property("value");
-        const xMax = +d3.select("#xMax").property("value");
-        const yMin = +d3.select("#yMin").property("value");
-        const yMax = +d3.select("#yMax").property("value");
-
-        // Update domains
-        xScale.domain([xMin, xMax]);
-        yScale.domain([yMin, yMax]);
-
-        // Update axes
-        xAxisGroup.call(xAxis);
-        yAxisGroup.call(yAxis);
-
-        // Update line paths
-        lines.attr("d", d => line(d[1]));
-    }
 }
