@@ -27,25 +27,30 @@ h1 {
 }
 
 #visualization-container {
+    display: flex;
+    flex-direction: row;
     padding: 20px;
     border: 2px solid #0073e6;
     border-radius: 8px;
     background-color: #ffffff;
     margin: 20px 0;
+    justify-content: space-between;
 }
 
 #visualization {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex: 1;
 }
 
 .legend-container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 20px;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-left: 20px;
 }
+
 
 .legend-item {
     display: flex;

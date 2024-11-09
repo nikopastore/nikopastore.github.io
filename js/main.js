@@ -57,7 +57,7 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
 // Function to create the visualization
 function createVisualization(data) {
     // Set the dimensions and margins for the SVG
-    const margin = { top: 50, right: 200, bottom: 100, left: 100 };
+    const margin = { top: 50, right: 250, bottom: 100, left: 100 }; // Increased right margin for legend space
     const width = 800 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -163,7 +163,7 @@ function createVisualization(data) {
         .on("mouseout", function (event, d) {
             d3.select(this)
                 .style("stroke-width", 1.5)
-                .style("stroke", d3.schemeCategory10[i % 10]);
+                .style("stroke", d3.schemeCategory10[data.indexOf(d) % 10]); // Revert to the original color
             tooltip.style("visibility", "hidden");
         });
 }
