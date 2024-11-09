@@ -131,13 +131,22 @@ function createVisualization(data) {
                 .style("stroke-width", 3)
                 .style("stroke", "orange");
 
+            // Get the current x-axis minimum value
+            const xMin = +d3.select("#xMin").property("value");
+
             // Get the nearest data point to the mouse
             const mouseYear = Math.round(xScale.invert(event.offsetX - margin.left));
             const dataPoint = d[1].find(point => point.year === mouseYear);
 
-            if (dataPoint) {
+            // Find the starting data point for the current visible range
+            const startPoint = d[1].find(point => point.year === xMin);
+
+            if (dataPoint && startPoint) {
+                // Calculate the total percentage change from the starting year
+                const totalChange = dataPoint.gdp_growth - startPoint.gdp_growth;
+
                 tooltip.style("visibility", "visible")
-                    .html(`<strong>Country:</strong> ${d[0]}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>GDP Growth:</strong> ${dataPoint.gdp_growth.toFixed(2)}%`);
+                    .html(`<strong>Country:</strong> ${d[0]}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>Total GDP Growth from ${xMin}:</strong> ${totalChange.toFixed(2)}%`);
             }
         })
         .on("mousemove", function (event) {
