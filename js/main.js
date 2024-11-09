@@ -19,18 +19,28 @@ d3.csv("data/GDP_annual_growth_NEW.csv")
             "Canada", "South Korea"
         ];
 
-        // Iterate through each row of the CSV
+        // Iterate through each row of the CSV to create reshaped data
         data.forEach(d => {
             if (top10Countries.includes(d["Country Name"])) {
+                let countryData = [];
                 years.forEach(year => {
                     if (d[year] !== undefined && d[year] !== "") {
-                        reshapedData.push({
+                        countryData.push({
                             country: d["Country Name"],
                             year: +year,
                             gdp_growth: +d[year]
                         });
                     }
                 });
+
+                // Normalize the data to start from 0 in the year 2000
+                if (countryData.length > 0) {
+                    const baseValue = countryData.find(point => point.year === 2000).gdp_growth;
+                    countryData.forEach(point => {
+                        point.gdp_growth = point.gdp_growth - baseValue;
+                    });
+                    reshapedData.push(...countryData);
+                }
             }
         });
 
@@ -73,7 +83,7 @@ function createVisualization(data) {
         .range([0, width]);
 
     let yScale = d3.scaleLinear()
-        .domain(d3.extent(data, d => d.gdp_growth))
+        .domain([d3.min(data, d => d.gdp_growth), d3.max(data, d => d.gdp_growth)])
         .range([height, 0]);
 
     // Set up the x and y axes
@@ -127,7 +137,7 @@ function createVisualization(data) {
 
             if (dataPoint) {
                 tooltip.style("visibility", "visible")
-                    .html(`<strong>Country:</strong> ${d[0]}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>GDP Growth:</strong> ${dataPoint.gdp_growth}%`);
+                    .html(`<strong>Country:</strong> ${d[0]}<br><strong>Year:</strong> ${dataPoint.year}<br><strong>GDP Growth:</strong> ${dataPoint.gdp_growth.toFixed(2)}%`);
             }
         })
         .on("mousemove", function (event) {
@@ -182,8 +192,8 @@ function createVisualization(data) {
     d3.select("#resetButton").on("click", function() {
         d3.select("#xMin").property("value", 2000);
         d3.select("#xMax").property("value", 2020);
-        d3.select("#yMin").property("value", -10);
-        d3.select("#yMax").property("value", 15);
+        d3.select("#yMin").property("value", d3.min(data, d => d.gdp_growth));
+        d3.select("#yMax").property("value", d3.max(data, d => d.gdp_growth));
         updateChart();
     });
 
